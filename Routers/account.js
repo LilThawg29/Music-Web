@@ -1,11 +1,11 @@
 const router = require("express").Router();
 const accountControllers = require("../Controllers/account");
-const middlewareAccounts = require("../Middlewares/account");
+const { authorizationToken } = require("../helpers/jwt_helpers");
 
 router.post("/register", accountControllers.REGISTER);
 router.post("/login", accountControllers.LOGIN);
 router.get("/logout", accountControllers.LOGOUT);
-router.get('/list', middlewareAccounts.VERIFY_ADMIN, accountControllers.LIST_ACCOUNT);
-router.get('/profile', middlewareAccounts.VERIFY_TOKEN, accountControllers.PROFILE);
+router.get("/list", accountControllers.LIST_ACCOUNT);
+router.get("/profile", authorizationToken, accountControllers.PROFILE);
 
 module.exports = router;

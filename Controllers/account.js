@@ -1,61 +1,92 @@
+const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const moment = require("moment");
 const mongooseAccount = require("../Models/account");
-const validator = require("email-validator");
-const jwt = require("jsonwebtoken");
+const { createAccessToken } = require("../helpers/jwt_helpers");
+const validateEmail = require("email-validator").validate;
 
 const accountControllers = {
   REGISTER: async (req, res) => {
     try {
-      const { username, password, email } = req.body;
-      if (!password || !username)
-        return res.status(400).json({ msg: "username or password not empty!" });
-      if (!validator.validate(email))
-        return res.status(400).json({ msg: "Invalid emails!" });
-      const account = await mongooseAccount.findOne({ email: email });
-      if (account) return res.status(400).json({ msg: "Account exists!" });
-
-      const salt = await bcrypt.genSalt(10);
-      const hashed = await bcrypt.hash(req.body.password, salt);
-
-      const newmongooseAccount = await new mongooseAccount({
-        username: username,
-        email: email,
-        password: hashed,
+      const avatarDefault = [
+        "https://res.cloudinary.com/phuockaito/image/upload/v1627194964/user/1_oupk48.png",
+        "https://res.cloudinary.com/phuockaito/image/upload/v1627194964/user/2_dtmvm9.png",
+        "https://res.cloudinary.com/phuockaito/image/upload/v1627194964/user/3_ttwqrr.png",
+        "https://res.cloudinary.com/phuockaito/image/upload/v1627194964/user/4_fbupvc.png",
+        "https://res.cloudinary.com/phuockaito/image/upload/v1627194964/user/5_c2r91d.png",
+      ];
+      const random = Math.floor(Math.random() * avatarDefault.length);
+      const create = moment().format();
+      const { userName, password, email } = req.body;
+      if (!validateEmail(email))
+        return res.status(400).json({ msg: "Invalid emails." });
+      const doseExists = await mongooseAccount.findOne({ email: email });
+      if (doseExists)
+        return res.status(400).json({ message: "account exists" });
+      if (!password)
+        return res.status(400).json({ message: "Please enter password" });
+      if (userName.length < 1 || userName.length > 30)
+        return res
+          .status(400)
+          .json({ message: "Username should not exceed 30 characters" });
+      if (password.length < 8)
+        return res
+          .status(400)
+          .json({ message: "password must be at least 8 characters long" });
+      const passwordHash = await bcrypt.hash(password.trim(), 12);
+      const newAccount = new mongooseAccount({
+        _id: new mongoose.Types.ObjectId(),
+        user_name: userName.trim(),
+        password: passwordHash,
+        email: email.trim(),
+        image: avatarDefault[random],
+        createdAt: create,
+        updatedAt: create,
       });
-
-      await newmongooseAccount.save();
-      res.status(200).json({ msg: "Register successfully!" });
+      const result = await newAccount.save();
+      const user = {
+        id: result._id,
+        userName: result.user_name,
+        email: result.email,
+      };
+      console.log(user);
+      const accessToken = await createAccessToken(user);
+      console.log(accessToken);
+      res.json({
+        accessToken,
+        data: result,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      res.json({
+        status: "error",
+        message: err,
+      });
     }
   },
   LOGIN: async (req, res) => {
     try {
-      var { email, password } = req.body;
-      if (!email || !password)
-        return res.status(400).json({ msg: "email or password not empty!" });
-      if (!validator.validate(email))
-        return res.status(400).json({ msg: "Invalid emails!" });
-      const account = await mongooseAccount.findOne({ email: email });
-      if (!account) return res.status(400).json({ msg: "Account not exists!" });
-      const isMatch = await bcrypt.compare(password, account.password);
-      if (!isMatch) return res.status(400).json({ msg: "Incorrect password!" });
-
-      const Token = jwt.sign(
-        {
-          id: account.id,
-          role: account.role,
-        },
-        process.env.JWT_ACCESS_KEY,
-        { expiresIn: "365d" }
-      );
-
-      var { password, ...responseAccount } = account._doc;
-
-      res.cookie("Token", Token);
-      res.status(200).json({ responseAccount, Token });
+      const { email, password } = req.body;
+      const account = await mongooseAccount.findOne({ email: email.trim() });
+      if (!account)
+        return res.status(400).json({ message: "Account does not exist" });
+      const isMatch = await bcrypt.compare(password.trim(), account.password);
+      if (!isMatch)
+        return res.status(400).json({ message: "Incorrect password" });
+      const user = {
+        id: account._id,
+        userName: account.user_name,
+        email: account.email,
+      };
+      const accessToken = await createAccessToken(user);
+      res.json({
+        accessToken,
+        data: account,
+      });
     } catch (err) {
-      res.status(500).json(err);
+      res.json({
+        status: "error",
+        message: err,
+      });
     }
   },
   LOGOUT: (req, res) => {
@@ -65,11 +96,7 @@ const accountControllers = {
   LIST_ACCOUNT: async (req, res) => {
     try {
       const account = await mongooseAccount.find();
-      var responseAccounts = account.map((acc) => {
-        var { password, ...responseAccount } = acc._doc;
-        return responseAccount;
-      });
-      res.status(200).json(responseAccounts);
+      res.status(200).json(account);
     } catch (error) {
       res.status(500).json({
         error: error.message,
@@ -78,19 +105,24 @@ const accountControllers = {
   },
   PROFILE: async (req, res) => {
     try {
-      const { id } = req.account;
+      const { id } = req;
       const account = await mongooseAccount.findById(id);
-      if (!account) return res.status(400).json({ msg: "No found account!" });
+      if (!account)
+        return res.status(400).json({ message: "no found account" });
       const user = {
         id: account._id,
-        userName: account.username,
+        userName: account.user_name,
         email: account.email,
-        role: account.role,
       };
-      res.status(200).json(user);
+      const accessToken = await createAccessToken(user);
+      res.json({
+        accessToken,
+        data: account,
+      });
     } catch (error) {
-      res.status(500).json({
-        error: error.message,
+      res.json({
+        status: "error",
+        message: error,
       });
     }
   },
