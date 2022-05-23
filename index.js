@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 
 const accountRouter = require("./Routers/account");
+const musicRouter = require("./Routers/music");
 
 dotenv.config();
 const app = express();
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/account", accountRouter);
+app.use("/api/music", musicRouter);
 
 app.listen(3000, () => {
     console.log("Server is running");
