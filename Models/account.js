@@ -9,6 +9,7 @@ const AccountSchema = mongoose.Schema({
   email: { type: String, required: true },
   image: { type: String, default: null },
   role: { type: Number, default: 1 },
+  isActive: { type: Boolean, default: true },
   sum_comment: { type: Number, default: null },
   sum_list_music: { type: Number, default: null },
   sum_upload: { type: Number, default: null },
