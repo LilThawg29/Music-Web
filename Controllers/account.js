@@ -99,14 +99,9 @@ const accountControllers = {
       const _limit = req.query._limit * 1 || 20;
       const start = (_page - 1) * _limit;
       const end = start + _limit;
-      const account = await mongooseAccount.find();
+      const account = await mongooseAccount.find().skip(start).limit(end);
       res.status(200).json({
-        pagination: {
-          _limit: _limit,
-          _page: _page,
-          _total: account.length,
-        },
-        data: account.slice(start, end),
+        data: account,
       });
     } catch (error) {
       res.status(500).json({

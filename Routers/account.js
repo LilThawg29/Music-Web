@@ -8,6 +8,6 @@ router.get("/logout", accountControllers.LOGOUT);
 router.get("/list", accountControllers.LIST_ACCOUNT);
 router.get("/profile", authorizationToken, accountControllers.PROFILE);
 router.get("/search",accountControllers.SEARCH_ACCOUNT)
-router.get("/active", accountControllers.ACTIVE_ACCOUNT)
+router.put("/active", accountControllers.ACTIVE_ACCOUNT)
 
 module.exports = router;
