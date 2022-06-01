@@ -95,13 +95,21 @@ const accountControllers = {
   },
   LIST_ACCOUNT: async (req, res) => {
     try {
+      const search = req.query.search || "";
       const _page = req.query._page * 1 || 1;
       const _limit = req.query._limit * 1 || 20;
       const start = (_page - 1) * _limit;
       const end = start + _limit;
-      const account = await mongooseAccount.find().skip(start).limit(end);
+      const account = await mongooseAccount.find({
+        user_name: { $regex: search, $options: "i" },
+      });
       res.status(200).json({
-        data: account,
+        pagination: {
+          _limit: _limit,
+          _page: _page,
+          _total: account.length,
+        },
+        data: account.slice(start, end),
       });
     } catch (error) {
       res.status(500).json({
@@ -132,14 +140,17 @@ const accountControllers = {
       });
     }
   },
-  SEARCH_ACCOUNT: async (req, res) => {
+  ACTIVE_ACCOUNT: async (req, res) => {
     try {
-      const user_name = req.query.user_name;
-      const account = await mongooseAccount.find({
-        user_name: { $regex: user_name, $options: "i" },
-      });
+      const _id = req.params._id;
+      const account = await mongooseAccount.findById(_id);
+      if (account.isActive) {
+        account.isActive = false;
+      } else {
+        account.isActive = true;
+      }
+      account.save();
       res.json({
-        _total: account.length,
         data: account,
       });
     } catch (error) {
@@ -149,26 +160,6 @@ const accountControllers = {
       });
     }
   },
-  ACTIVE_ACCOUNT: async (req,res) => {
-    try {
-      const _id = req.query._id;
-      const account = await mongooseAccount.findById(_id);
-      if(account.isActive) {
-        account.isActive = false;
-      } else {
-        account.isActive = true;
-      } 
-      account.save()
-      res.json({
-        data: account,
-      });
-    } catch (error) {
-      res.json({
-        status: "error",
-        message: error,
-      });
-    }
-  }
 };
 
 module.exports = accountControllers;

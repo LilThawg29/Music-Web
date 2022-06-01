@@ -7,7 +7,6 @@ router.post("/login", accountControllers.LOGIN);
 router.get("/logout", accountControllers.LOGOUT);
 router.get("/list", accountControllers.LIST_ACCOUNT);
 router.get("/profile", authorizationToken, accountControllers.PROFILE);
-router.get("/search",accountControllers.SEARCH_ACCOUNT)
-router.put("/active", accountControllers.ACTIVE_ACCOUNT)
+router.put("/active/:_id", accountControllers.ACTIVE_ACCOUNT);
 
 module.exports = router;
