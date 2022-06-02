@@ -358,13 +358,18 @@ const musicControllers = {
   },
   GET_ALL: async (req, res) => {
     try {
+      const search = req.query.search || "";
       const _page = req.query._page * 1 || 1;
       const _limit = req.query._limit * 1 || 20;
       const start = (_page - 1) * _limit;
       const end = start + _limit;
-      const length_music = await mongooseMusic.find();
+      const length_music = await mongooseMusic.find({
+        slug_name_music: { $regex: search, $options: "i" },
+      });
       const features = new ApiFeatures(
-        mongooseMusic.find(),
+        mongooseMusic.find({
+          slug_name_music: { $regex: search, $options: "i" },
+        }),
         req.query
       ).sorting();
       const result = await features.query;
