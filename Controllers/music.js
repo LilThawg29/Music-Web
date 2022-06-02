@@ -23,6 +23,17 @@ cloudinary.config({
   api_secret: CLOUDINARY_API_SECRET,
 });
 
+class ApiFeatures {
+  constructor(query, queryString) {
+    this.query = query;
+    this.queryString = queryString;
+  }
+  sorting() {
+    this.query = this.query.sort("-createdAt");
+    return this;
+  }
+}
+
 const format = (seconds) => {
   const date = new Date(seconds * 1000);
   const hh = date.getUTCHours();
@@ -104,9 +115,9 @@ const musicControllers = {
     try {
       const create_music = moment().format();
       const { id } = req;
-      const account = await mongooseAccount.findById(id);
-      if (!account)
-        return res.status(401).json({ messages: "account not found" });
+      // const account = await mongooseAccount.findById(id);
+      // if (!account)
+      //   return res.status(401).json({ messages: "account not found" });
       var { link_mv, name_singer, category } = req.body;
       name_singer = name_singer || "";
       category = category || "";
@@ -123,7 +134,7 @@ const musicControllers = {
 
             const new_music = new mongooseMusic({
               _id: new mongoose.Types.ObjectId(),
-              id_account: id,
+              id_account: id || "628d08b7626add9fba412c47",
               name_singer: name_singer,
               slug_name_singer: vnmToAlphabet(
                 name_singer.trim().toLowerCase().replace(/ /g, "-")
