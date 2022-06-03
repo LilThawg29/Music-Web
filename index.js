@@ -8,6 +8,7 @@ const musicRouter = require("./Routers/music");
 const favoriteRouter = require("./Routers/favorite");
 const listMusicRouter = require("./Routers/list-music");
 const playHistoryRouter = require("./Routers/play-history");
+const searchRouter = require("./Routers/search");
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,7 @@ app.use("/api/music", musicRouter);
 app.use("/api/favorite", favoriteRouter);
 app.use("/api/list-music", listMusicRouter);
 app.use("/api/play-history", playHistoryRouter);
+app.use("/api/search", searchRouter);
 
 app.listen(3000, () => {
   console.log("Server is running");
