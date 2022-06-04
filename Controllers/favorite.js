@@ -1,6 +1,9 @@
-const mongooseAccount = require("../Models/account");
-const mongooseMusic = require("../Models/music");
-const mongooseFavorite = require("../Models/favorite");
+const mongoose = require("mongoose");
+const moment = require("moment");
+
+const mongooseAccount = require("../Model/account");
+const mongooseMusic = require("../Model/music");
+const mongooseFavorite = require("../Model/favorite");
 
 class ApiFeatures {
   constructor(query, queryString) {
@@ -111,5 +114,3 @@ module.exports = {
     }
   },
 };
-
-
