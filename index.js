@@ -27,6 +27,6 @@ app.use("/api/list-music", listMusicRouter);
 app.use("/api/play-history", playHistoryRouter);
 app.use("/api/search", searchRouter);
 
-app.listen(3000, () => {
+app.listen(3000 || Process.env.PORT, () => {
   console.log("Server is running");
 });
