@@ -48,13 +48,25 @@ const accountControllers = {
         id: result._id,
         userName: result.user_name,
         email: result.email,
+        role: result.role
       };
 
       const accessToken = await createAccessToken(user);
-
       res.json({
         accessToken,
-        data: result,
+        data: {
+          id: result._id,
+          userName: result.user_name,
+          email: result.email,
+          image: result.image,
+          role: result.role,
+          isActive: result.isActive,
+          sum_comment: result.sum_comment,
+          sum_list_music: result.sum_list_music,
+          sum_upload: result.sum_upload,
+          updatedAt: result.updatedAt,
+          createdAt: result.createdAt,
+        },
       });
     } catch (err) {
       res.json({
@@ -76,11 +88,24 @@ const accountControllers = {
         id: account._id,
         userName: account.user_name,
         email: account.email,
+        role: account.role
       };
       const accessToken = await createAccessToken(user);
       res.json({
         accessToken,
-        data: account,
+        data: {
+          id: account._id,
+          userName: account.user_name,
+          email: account.email,
+          image: account.image,
+          role: account.role,
+          isActive: account.isActive,
+          sum_comment: account.sum_comment,
+          sum_list_music: account.sum_list_music,
+          sum_upload: account.sum_upload,
+          updatedAt: account.updatedAt,
+          createdAt: account.createdAt,
+        },
       });
     } catch (err) {
       res.json({
