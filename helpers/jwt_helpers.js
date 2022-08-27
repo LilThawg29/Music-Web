@@ -29,6 +29,9 @@ module.exports = {
           return next(createError.Unauthorized(message));
         }
         req.id = decoded.id;
+        if (!decoded.isActive) {
+          return next("You 're not activated");
+        }
         next();
       });
     } catch (error) {
@@ -46,7 +49,6 @@ module.exports = {
 
       JWT.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
-          console.log("Loi o err day");
           const message =
             err.name === "JsonWebTokenError" ? "Unauthorized" : err.message;
           return next(createError.Unauthorized(message));

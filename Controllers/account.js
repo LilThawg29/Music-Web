@@ -48,7 +48,8 @@ const accountControllers = {
         id: result._id,
         userName: result.user_name,
         email: result.email,
-        role: result.role
+        role: result.role,
+        isActive: result.isActive
       };
 
       const accessToken = await createAccessToken(user);
@@ -88,7 +89,8 @@ const accountControllers = {
         id: account._id,
         userName: account.user_name,
         email: account.email,
-        role: account.role
+        role: account.role,
+        isActive: result.isActive
       };
       const accessToken = await createAccessToken(user);
       res.json({
